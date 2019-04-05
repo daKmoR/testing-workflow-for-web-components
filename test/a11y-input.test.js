@@ -8,7 +8,7 @@ import '../src/a11y-input.js';
  */
 
 describe('a11y input', () => {
-  it('is by default an empty default label', async () => {
+  it('has by default an empty string as label', async () => {
     const el = /** @type {A11yInput} */ (await fixture('<a11y-input></a11y-input>'));
     expect(el.label).to.equal('');
   });
@@ -17,10 +17,16 @@ describe('a11y input', () => {
     const el = /** @type {A11yInput} */ (await fixture(html`
       <a11y-input .label=${'foo'}></a11y-input>
     `));
-    expect(el).dom.to.equal(`
-      <label slot="label">foo2</label>
+    expect(el).lightDom.to.equal(`
+      <label slot="label">foo</label>
       <input slot="input">
     `);
+  });
+
+  it('has an unchangeing shadow-dom', async () => {
+    const el = /** @type {A11yInput} */ (await fixture(html`
+      <a11y-input .label=${'foo'}></a11y-input>
+    `));
     expect(el).shadowDom.to.equal(`
       <div>
         <slot name="label"></slot>

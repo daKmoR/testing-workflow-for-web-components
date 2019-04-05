@@ -768,10 +768,10 @@
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
-"@open-wc/chai-dom-equals@^0.10.8":
-  version "0.10.8"
-  resolved "https://registry.yarnpkg.com/@open-wc/chai-dom-equals/-/chai-dom-equals-0.10.8.tgz#3537be88b3db3e516d5f013c368668ddc5b739e3"
-  integrity sha512-IXZOlwyuSpQQBnbH0gVtAAyRNOySaahmN44z7g88yisg/HgoSwk0//oviTDF9t18kx6BQuGWKOXqR4gaibX8/A==
+"@open-wc/chai-dom-equals@^0.10.9":
+  version "0.10.9"
+  resolved "https://registry.yarnpkg.com/@open-wc/chai-dom-equals/-/chai-dom-equals-0.10.9.tgz#8be21385a8c83893cf83287123f8cc4e8fb9f884"
+  integrity sha512-xpI7r1RPLJUCeMMdfPkzbnYa06eUvX8PG71YF1mheyk88qZ0bjZO6JTIWCEFvSv9LwFCOEZ+YmtJRRWdTXDeYg==
   dependencies:
     "@open-wc/semantic-dom-diff" "^0.9.5"
     "@types/chai" "^4.1.7"
@@ -840,13 +840,13 @@
     karma-webpack "^5.0.0-alpha.2"
     webpack "^4.28.0"
 
-"@open-wc/testing@^0.10.1":
-  version "0.10.9"
-  resolved "https://registry.yarnpkg.com/@open-wc/testing/-/testing-0.10.9.tgz#e083409744c3797dd40a7a2dbe43574b57bd954d"
-  integrity sha512-EQmLGKbNZDD2RixxV15rQgLzAtxhhF7NX7pEC+c+vbSdc+sTiQAQAfT938OQkoWOdt7RSVODwbhpThYbiFkkjw==
+"@open-wc/testing@^0.10.10":
+  version "0.10.10"
+  resolved "https://registry.yarnpkg.com/@open-wc/testing/-/testing-0.10.10.tgz#fcda1fd8c956da05ec9ee44852f5e047c4a0123b"
+  integrity sha512-/vgEVvKogTf8F2lNeUw/fYEmXRMPl5rM9cLAaQ3qpZYtykXpE2C9QXZ+qd9jpAG9iZ2TyaMG8/2qprT6e/CrTQ==
   dependencies:
     "@bundled-es-modules/chai" "^4.2.0"
-    "@open-wc/chai-dom-equals" "^0.10.8"
+    "@open-wc/chai-dom-equals" "^0.10.9"
     "@open-wc/testing-helpers" "^0.8.3"
     "@types/chai" "^4.1.7"
     "@types/mocha" "^5.0.0"
