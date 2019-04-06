@@ -485,5 +485,75 @@ Lines        : 95.83% ( 23/24 )
 06 04 2019 13:18:54.902:ERROR [reporter.coverage-istanbul]: Coverage for branches (50%) does not meet global threshold (90%)
 ```
 
-However we are still not fully there why?
+However we are still not fully there - the question is why?
+
+To find out open `coverage/index.html` in your browser => no web server needed just drag the file into your browser.
+
+You will see something like this
+
+![03-coverage-overview](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/03-coverage-overview.png)
+
+Once you click on `a11y-input.js` you get a line by line info how often they got executed.
+So we can immeditaly see which lines are not executed yet by our tests.
+
+![04-coverage-line-by-line](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/04-coverage-line-by-line.png)
+
+So let's add a test for that
+```js
+it('outputs "We like cats too :)" if the value is "cat"', async () => {
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input .value=${'cat'}></a11y-input>
+  `));
+  // somehow check that console.log was called
+});
+```
+
+```
+=============================== Coverage summary ===============================
+Statements   : 100% ( 24/24 )
+Branches     : 75% ( 3/4 )
+Functions    : 100% ( 7/7 )
+Lines        : 100% ( 24/24 )
+================================================================================
+```
+
+With that we are back 100% on statments but we still have something missing on branches.
+Let's see why?
+
+![05-coverage-line-by-line-else](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/05-coverage-line-by-line-else.png)
+
+This `E` means `else path not taken`. e.g. `update` never get's called without a changed value.
+
+Probably a good thing to test as well.
+Let's test our label
+
+```js
+it('can update its label', async () => {
+  const el = /** @type {A11yInput} */ (await fixture('<a11y-input label="foo"></a11y-input>'));
+  expect(el.label).to.equal('foo');
+  el.label = 'bar';
+  expect(el.label).to.equal('bar');
+});
+```
+
+boom :muscle:
+
+```
+=============================== Coverage summary ===============================
+Statements   : 100% ( 24/24 )
+Branches     : 100% ( 4/4 )
+Functions    : 100% ( 7/7 )
+Lines        : 100% ( 24/24 )
+================================================================================
+```
+
+But wait we didn't even finished the test above it still has
+```js
+  // somehow check that console.log was called
+```
+
+How come we have 100% test coverage?
+
+
+
 

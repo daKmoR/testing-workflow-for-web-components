@@ -13,6 +13,13 @@ describe('a11y input', () => {
     expect(el.label).to.equal('');
   });
 
+  it('can update its label', async () => {
+    const el = /** @type {A11yInput} */ (await fixture('<a11y-input label="foo"></a11y-input>'));
+    expect(el.label).to.equal('foo');
+    el.label = 'bar';
+    expect(el.label).to.equal('bar');
+  });
+
   it('has a static shadowDom', async () => {
     const el = /** @type {A11yInput} */ (await fixture(html`
       <a11y-input></a11y-input>
@@ -37,8 +44,14 @@ describe('a11y input', () => {
     const el = /** @type {A11yInput} */ (await fixture(html`
       <a11y-input .value=${'foo'}></a11y-input>
     `));
-    // debugger;
     expect(el.value).to.equal('foo');
     expect(el.querySelector('input').value).to.equal('foo');
+  });
+
+  it('outputs "We like cats too :)" if the value is "cat"', async () => {
+    const el = /** @type {A11yInput} */ (await fixture(html`
+      <a11y-input .value=${'cat'}></a11y-input>
+    `));
+    // somehow check that console.log was called
   });
 });
