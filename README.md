@@ -2,11 +2,11 @@
 ---
 title: Testing workflow for web-components
 published: false
-description: Provide the best developer experience by showing awesome intellisense and adding types to your web components.
+description: Testing and debugging your web component is an important skill to give you the confidence the code you share is production ready.
 tags: webcomponents, javascript, testing, karma
 ---
 
-Whenever you ship something to be used by others you take on a responsibilty.
+Whenever you ship something to be used by others you take on a responsibility.
 Unfortunately not always is this responsibility taken care of.
 One thing to make sure you take it on is to write tests.
 
@@ -15,12 +15,12 @@ No matter how small - no matter how simple there should be tests.
 
 ### Disclaimer
 We are going to make a simple version of an accessible input.
-Everything you see here is for illustration perposes only - so don't scream at me that you should not do it.
+Everything you see here is for illustration purposes only - so don't scream at me that you should not do it.
 We do it so we can see all the places where our testing workflow can shine.
 
 ## Let's get started
 
-After following https://open-wc.org/testing/ I have the basic setup up and and running.
+After following [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
 
 Let's create `src/a11y-input.js`;
 ```
@@ -74,7 +74,7 @@ Let's go into watch mode `npm run test:watch`
 
 ![01-watch-mode-intro](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/01-watch-mode-intro.gif)
 
-That was quite easy let's up the game a little.
+That was quite easy lets up the game a little.
 
 ### Adding a test for shadow dom
 
@@ -131,7 +131,7 @@ AssertionError: expected '<!---->\n      <slot name="label"></slot>\n      <slot
 ```
 
 What are those empty comment `<!---->` tags?
-=> They are sort of markers for `lit-html` so it can do it's update work as efficently as possible.
+=> They are sort of markers for `lit-html` so it can do its update work as efficiently as possible.
 
 Do we really need to match the exact same indentation in code and test?
 => Jup if you use innerHTML and equals then it's "just" a string compare so it will need to be a perfect match.
@@ -156,7 +156,7 @@ Bam :tada:
 
 ```
 a11y input
-  ✔ has by default an empty string as label
+  ✔ has by default an empty string as a label
   ✔ has a static shadowDom
 ```
 
@@ -164,7 +164,7 @@ a11y input
 
 It actually does a lot of work
 1. It gets the innerHTML of the shadowRoot
-2. Parses it (actually we let the browser do it - no library needed)
+2. Parses it (actually, we let the browser do it - no library needed)
 3. Normalizes it (potentially every tag/property on its own line)
 4. It does 2 + 3 for the expected html string
 5. Pass both normalizes dom string on to the default chai compare
@@ -205,9 +205,9 @@ connectedCallback() {
 }
 ```
 
-*yes that is sort of an anti-pattern however to allow for a11y it might be a real use case - anyways it's great for illustration perposes*
+*yes that is sort of an anti-pattern however to allow for a11y it might be a real use case - anyways it's great for illustration purposes*
 
-Now this leads to a certain problem - can you guess it?
+Now, this leads to a certain problem - can you guess it?
 
 ### My Filter App
 
@@ -281,12 +281,12 @@ FAILED TESTS:
        </a11y-input>
 ```
 
-So I'm only interested in `a11y-input` not in it's implementation detail.
-As an app developer I'm now a little unlucky as this element "playes" in my domain. preposterous!
-After some infestigation I conclude there are very valid reasons for a11y input to do what it does.
+So I'm only interested in `a11y-input` not in its implementation detail.
+As an app developer, I'm now a little unlucky as this element "plays" in my domain. preposterous!
+After some investigation I conclude there are very valid reasons for a11y input to do what it does.
 Now how can I test it?
 
-Luckily `.shadowDom` has another ace up it's sleeve.
+Luckily `.shadowDom` has another ace up its sleeve.
 As it allows us to ignore certain dom parts.
 
 ```js
@@ -339,7 +339,7 @@ set value(newValue) {
 }
 ```
 
-It's vastly different result
+It's a vastly different result
 ```
 SUMMARY:
 ✔ 4 tests completed
@@ -357,8 +357,8 @@ Lines        : 81.82% ( 18/22 )
 06 04 2019 10:40:45.381:ERROR [reporter.coverage-istanbul]: Coverage for functions (75%) does not meet global threshold (90%)
 ```
 
-So first of our coverge is way lower then before and our command even fails although all tests run successfully.
-Apparently there is a 90% limit on what your code coverage should be.
+So first of our coverage is way lower than before and our command even fails although all tests run successfully.
+Apparently, there is a 90% limit on what your code coverage should be.
 
 So let's add a test
 ```js
@@ -370,7 +370,7 @@ it('can set/get the input value directly via the custom element', async () => {
 });
 ```
 
-uh oh :screm:
+uh oh :scream:
 ```
 FAILED TESTS:
   a11y input
@@ -384,7 +384,7 @@ That seems to be too tough to just figure out in my head I need to see some actu
 ### Debugging in the browser
 
 - be sure you started with `npm run test:watch`
-- vist [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
+- visit [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
 
 
 You should see something like this
@@ -439,8 +439,8 @@ ok now the setter doesn't break anymore but we still have
 AssertionError: expected '' to equal 'foo'
 ```
 
-Ok we need a change of tactic :thinking:
-- add it as a seprate property
+Ok, we need a change of tactic :thinking:
+- add it as a separate property
 - sync it when needed
 
 ```js
@@ -494,7 +494,7 @@ You will see something like this
 ![03-coverage-overview](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/03-coverage-overview.png)
 
 Once you click on `a11y-input.js` you get a line by line info how often they got executed.
-So we can immeditaly see which lines are not executed yet by our tests.
+So we can immediately see which lines are not executed yet by our tests.
 
 ![04-coverage-line-by-line](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/04-coverage-line-by-line.png)
 
@@ -517,12 +517,12 @@ Lines        : 100% ( 24/24 )
 ================================================================================
 ```
 
-With that we are back 100% on statments but we still have something missing on branches.
+With that, we are back at 100% on statements but we still have something missing on branches.
 Let's see why?
 
 ![05-coverage-line-by-line-else](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/05-coverage-line-by-line-else.png)
 
-This `E` means `else path not taken`. e.g. `update` never get's called without a changed value.
+This `E` means `else path not taken`. e.g. `update` never gets called without a changed value.
 
 Probably a good thing to test as well.
 Let's test our label
@@ -547,7 +547,7 @@ Lines        : 100% ( 24/24 )
 ================================================================================
 ```
 
-But wait we didn't even finished the test above it still has
+But wait we didn't even finish the test above it still has
 ```js
   // somehow check that console.log was called
 ```
@@ -574,12 +574,12 @@ if (this.value === 'cat') {
 }
 ```
 
-Bascially your code gets littered with many many flags.
+Basically, your code gets littered with many many flags.
 Based on which flags are set you can create a statistic.
 
 So 100% test coverage only means that every line you have in your code was executed at least once after all your tests finished.
 It does NOT mean that you tested everything or if you are expecting the correct things.
-You should see it as a tool that can give you guidance and help on spot no executed lines of code in your tests.
+You should see it as a tool that can give you guidance and help on spotting not executed lines of code in your tests.
 
 ### Spys
 
