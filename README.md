@@ -3,7 +3,7 @@
 title: Testing workflow for web-components
 published: false
 description: Provide the best developer experience by showing awesome intellisense and adding types to your web components.
-tags: webcomponents, javascript, type, openwc
+tags: webcomponents, javascript, testing, karma
 ---
 
 Whenever you ship something to be used by others you take on a responsibilty.
@@ -552,8 +552,36 @@ But wait we didn't even finished the test above it still has
   // somehow check that console.log was called
 ```
 
-How come we have 100% test coverage?
+#### How come we have 100% test coverage?
 
+We probably first need to understand how it works.
+The way we measure code coverage is by applying a form of `instrumentation`.
+So before our code is executed it gets `instrumented` and it looks something like this:
+
+**Note:** This is a super simplified version to show the concept
+```js
+if (this.value === 'cat') {
+  console.log('We like cats too :)');
+}
+
+// becomes something like this (psoido code)
+__instrumented['functionUpdate'] += 1;
+if (this.value === 'cat') {
+  __instrumented['functionUpdateBranch1yes'] += 1;
+  console.log('We like cats too :)');
+} else {
+  __instrumented['functionUpdateBranch1no'] += 1;
+}
+```
+
+Bascially your code gets littered with many many flags.
+Based on which flags are set you can create a statistic.
+
+So 100% test coverage only means that every line you have in your code was executed at least once after all your tests finished.
+It does NOT mean that you tested everything or if you are expecting the correct things.
+You should see it as a tool that can give you guidance and help on spot no executed lines of code in your tests.
+
+### Spys
 
 
 
