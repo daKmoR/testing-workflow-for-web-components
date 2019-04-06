@@ -281,5 +281,209 @@ FAILED TESTS:
        </a11y-input>
 ```
 
+So I'm only interested in `a11y-input` not in it's implementation detail.
+As an app developer I'm now a little unlucky as this element "playes" in my domain. preposterous!
+After some infestigation I conclude there are very valid reasons for a11y input to do what it does.
+Now how can I test it?
 
+Luckily `.shadowDom` has another ace up it's sleeve.
+As it allows us to ignore certain dom parts.
+
+```js
+expect(el).shadowDom.to.equal(
+  `
+  <h1>My Filter App</h1>
+  <a11y-input></a11y-input>
+`,
+  { ignoreChildren: ['a11y-input'] },
+);
+```
+
+There is
+- ignoreChildren
+- ignoreTags
+- ignoreAttributes (globally or for specific tags)
+
+For more details please see [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
+
+### Code coverage
+
+Another metric we get when we do testing is code coverage.
+So how can we get it and what does it mean?
+A simple `npm run test` is all we need and you will get the following:
+
+```
+=============================== Coverage summary ===============================
+Statements   : 100% ( 15/15 )
+Branches     : 100% ( 0/0 )
+Functions    : 100% ( 5/5 )
+Lines        : 100% ( 15/15 )
+================================================================================
+```
+
+which is already pretty neat.
+
+So now let's go the other way and add code to `src/a11y-input.js` first before adding a test.
+Let's say we want to access the value of our input directly via our custom element and whenever its value is 'cat' we want to log something.
+
+```js
+get value() {
+  return this.inputEl.value;
+}
+
+set value(newValue) {
+  if (newValue === 'cat') {
+    console.log('We like cats too :)');
+  }
+  this.inputEl.value = newValue;
+}
+```
+
+It's vastly different result
+```
+SUMMARY:
+✔ 4 tests completed
+TOTAL: 4 SUCCESS
+
+=============================== Coverage summary ===============================
+Statements   : 81.82% ( 18/22 )
+Branches     : 0% ( 0/2 )
+Functions    : 75% ( 6/8 )
+Lines        : 81.82% ( 18/22 )
+================================================================================
+06 04 2019 10:40:45.380:ERROR [reporter.coverage-istanbul]: Coverage for statements (81.82%) does not meet global threshold (90%)
+06 04 2019 10:40:45.381:ERROR [reporter.coverage-istanbul]: Coverage for lines (81.82%) does not meet global threshold (90%)
+06 04 2019 10:40:45.381:ERROR [reporter.coverage-istanbul]: Coverage for branches (0%) does not meet global threshold (90%)
+06 04 2019 10:40:45.381:ERROR [reporter.coverage-istanbul]: Coverage for functions (75%) does not meet global threshold (90%)
+```
+
+So first of our coverge is way lower then before and our command even fails although all tests run successfully.
+Apparently there is a 90% limit on what your code coverage should be.
+
+So let's add a test
+```js
+it('can set/get the input value directly via the custom element', async () => {
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input .value=${'foo'}></a11y-input>
+  `));
+  expect(el.value).to.equal('foo');
+});
+```
+
+uh oh :screm:
+```
+FAILED TESTS:
+  a11y input
+    ✖ can set/get the input value directly via the custom element
+    TypeError: Cannot set property 'value' of null        at HTMLElement.set value [as value]
+    // ... => long error stack
+```
+
+That seems to be too tough to just figure out in my head I need to see some actual nodes and expect them in the browser.
+
+### Debugging in the browser
+
+- be sure you started with `npm run test:watch`
+- vist [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
+
+
+You should see something like this
+![02-debugging-in-browser](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/02-debugging-in-browser.png)
+
+And you can click on that circled play button to only run one individual test.
+
+So let's open the Chrome Dev Tools (F12) and put a debugger in the code.
+
+```js
+it('can set/get the input value directly via the custom element', async () => {
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input .value=${'foo'}></a11y-input>
+  `));
+  debugger;
+  expect(el.value).to.equal('foo');
+});
+```
+
+dang.. the error happens even before...
+
+```js
+set value(newValue) {
+  debugger;
+```
+
+ok let's see what we have there
+```js
+// console.log(this);
+<a11y-input>
+  #shadow-root (open)
+</a11y-input>
+```
+
+ahh so there we have it - the shadow dom is not yet rendered when the setter is called.
+Let's be safe
+
+```js
+set value(newValue) {
+  if (newValue === 'cat') {
+    console.log('We like cats too :)');
+  }
+  if (this.inputEl) {
+    this.inputEl.value = newValue;
+  }
+}
+```
+
+ok now the setter doesn't break anymore but we still have
+```
+✖ can set/get the input value directly via the custom element
+AssertionError: expected '' to equal 'foo'
+```
+
+Ok we need a change of tactic :thinking:
+- add it as a seprate property
+- sync it when needed
+
+```js
+static get properties() {
+  return {
+    label: { type: String },
+    value: { type: String },
+  };
+}
+
+constructor() {
+  super();
+  this.label = '';
+  this.value = '';
+  // ...
+}
+
+update(changedProperties) {
+  super.update(changedProperties);
+  if (changedProperties.has('value')) {
+    if (this.value === 'cat') {
+      console.log('We like cats too :)');
+    }
+    this.inputEl.value = this.value;
+  }
+}
+```
+
+woow we are finally back in business :tada:
+
+### Back to coverage
+
+With this added test we made progress.
+
+```
+=============================== Coverage summary ===============================
+Statements   : 95.83% ( 23/24 )
+Branches     : 50% ( 2/4 )
+Functions    : 100% ( 7/7 )
+Lines        : 95.83% ( 23/24 )
+================================================================================
+06 04 2019 13:18:54.902:ERROR [reporter.coverage-istanbul]: Coverage for branches (50%) does not meet global threshold (90%)
+```
+
+However we are still not fully there why?
 

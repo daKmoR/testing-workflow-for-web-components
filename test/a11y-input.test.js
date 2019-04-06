@@ -32,4 +32,13 @@ describe('a11y input', () => {
       <input slot="input">
     `);
   });
+
+  it('can set/get the input value directly via the custom element', async () => {
+    const el = /** @type {A11yInput} */ (await fixture(html`
+      <a11y-input .value=${'foo'}></a11y-input>
+    `));
+    // debugger;
+    expect(el.value).to.equal('foo');
+    expect(el.querySelector('input').value).to.equal('foo');
+  });
 });
