@@ -1,8 +1,8 @@
 {
-  "name": "todo-item",
+  "name": "testing-workflow-for-web-components",
   "version": "0.0.0",
-  "description": "Webcomponent todo-item following open-wc recommendations",
-  "author": "todo-item",
+  "description": "Testing workfow for web components",
+  "author": "Thomas Allmer",
   "homepage": "https://github.com/open-wc/open-wc/",
   "license": "MIT",
   "repository": "https://github.com/open-wc/open-wc/",
@@ -18,24 +18,27 @@
     "test:watch": "karma start --auto-watch=true --single-run=false",
     "test:legacy": "karma start --legacy --coverage",
     "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
-    "test:bs": "karma start karma.bs.config.js --legacy --coverage"
+    "test:bs": "karma start karma.bs.config.js --legacy --coverage",
+    "lint:types": "tsc"
   },
   "dependencies": {
-    "lit-html": "^1.0.0",
-    "lit-element": "^2.0.1"
+    "@types/node": "^11.13.0",
+    "lit-element": "^2.0.1",
+    "lit-html": "^1.0.0"
   },
   "devDependencies": {
-    "owc-dev-server": "^0.3.0",
-    "@open-wc/eslint-config": "^0.4.1",
-    "@open-wc/prettier-config": "^0.1.0",
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.0",
-    "husky": "^1.0.0",
-    "lint-staged": "^8.0.0",
-    "webpack-merge": "^4.1.5",
+    "@open-wc/eslint-config": "^0.4.1",
+    "@open-wc/prettier-config": "^0.1.0",
     "@open-wc/testing": "^0.10.10",
     "@open-wc/testing-karma": "^1.0.0",
-    "@open-wc/testing-karma-bs": "^1.0.0"
+    "@open-wc/testing-karma-bs": "^1.0.0",
+    "husky": "^1.0.0",
+    "lint-staged": "^8.0.0",
+    "owc-dev-server": "^0.3.0",
+    "typescript": "^3.3.3333",
+    "webpack-merge": "^4.1.5"
   },
   "lint-staged": {
     "*.js": [
