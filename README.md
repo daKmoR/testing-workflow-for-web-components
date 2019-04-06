@@ -1,4 +1,3 @@
-# Testing workflow for web-components
 ---
 title: Testing workflow for web-components
 published: false
@@ -323,8 +322,7 @@ Lines        : 100% ( 15/15 )
 
 which is already pretty neat.
 
-So now let's go the other way and add code to `src/a11y-input.js` first before adding a test.
-Let's say we want to access the value of our input directly via our custom element and whenever its value is 'cat' we want to log something.
+So let's go the other way and add code to `src/a11y-input.js` before adding a test. Let's say we want to access the value of our input directly via our custom element and whenever its value is 'cat' we want to log something.
 
 ```js
 get value() {
@@ -522,10 +520,10 @@ Let's see why?
 
 ![05-coverage-line-by-line-else](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/05-coverage-line-by-line-else.png)
 
-This `E` means `else path not taken`. e.g. `update` never gets called without a changed value.
+This `E` means `else path not taken`.
+So whenever the function `update` get's called there is always a property `value` in the changedProperties.
 
-Probably a good thing to test as well.
-Let's test our label
+We have `label` as well so it's a good idea to test it. :+1:
 
 ```js
 it('can update its label', async () => {
@@ -554,9 +552,9 @@ But wait we didn't even finish the test above it still has
 
 #### How come we have 100% test coverage?
 
-We probably first need to understand how it works.
-The way we measure code coverage is by applying a form of `instrumentation`.
-So before our code is executed it gets `instrumented` and it looks something like this:
+Lets first try to understand how code coverage work :thinking:
+The way code coverage gets messured is by applying a form of `instrumentation`.
+In short before our code is executed it gets changed (`instrumented`) and it behaves something like this:
 
 **Note:** This is a super simplified version to show the concept
 ```js
