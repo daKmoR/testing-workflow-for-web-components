@@ -5,23 +5,20 @@ description: Testing and debugging your web component is an important skill to g
 tags: webcomponents, javascript, testing, karma
 ---
 
-Whenever you ship something to be used by others you take on a responsibility.
-Unfortunately not always is this responsibility taken care of.
-One thing to make sure you take it on is to write tests.
+Whenever you ship something to be used by others you take on a responsibility to deliver safe and stable code. Unfortunately, this responsibility is not always taken care of, and one way to improve this is by testing your code.
 
-No matter how small - no matter how simple there should be tests.
-*Yes I know reality hit's hard and there will be many cases where that doesn't happen - but strife for it*
+No matter how small - no matter how simple your project, there should always be tests.
+
+> Yes, I know reality hits hard and there will be many cases where that doesn't happen - but you should always strive to have tests
 
 ### Disclaimer
-We are going to make a simple version of an accessible input.
-Everything you see here is for illustration purposes only - so don't scream at me that you should not do it.
-We do it so we can see all the places where our testing workflow can shine.
+In this tutorial, we're going to make a simple version of an accessible input. The aim of this tutorial is to give you a solid understanding of how to put our testing tools to practice, and get a solid and well-tested project.
 
-If you wanna play along - all the code is on [github](https://github.com/daKmoR/testing-workflow-for-web-components).
+If you want to play along - all the code is on [github](https://github.com/daKmoR/testing-workflow-for-web-components).
 
-## Let's get started
+## Let's get started!
 
-After following [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
+Start by following the instructions at [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
 
 Let's create `src/a11y-input.js`;
 ```js
@@ -51,7 +48,8 @@ describe('a11y input', () => {
 });
 ```
 
-Now onward with the tests - execute `npm run test`.
+Let's see if everything works correctly by running: `npm run test`.
+
 ```
 SUMMARY:
 ✔ 0 tests completed
@@ -69,13 +67,13 @@ FAILED TESTS:
       +""
 ```
 
-Awesome - just an expected to fail test :)
+Awesome - just as expected, we have a failing test :)
 
-Let's go into watch mode `npm run test:watch`
+Let's switch into watch mode `npm run test:watch`, this will run the tests simultaneously when you make some changes to your code.
 
 ![01-watch-mode-intro](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/01-watch-mode-intro.gif)
 
-That was quite easy lets up the game a little.
+So far so good? Still with us? Great! Let's up the game a little.
 
 ### Adding a test for shadow dom
 
@@ -114,7 +112,7 @@ render() {
 }
 ```
 
-Test should be green... but it's not :/
+Interesting, the test should be green... but it's not :/ Let's take a look.
 ```
 ✖ has a static shadowDom
 AssertionError: expected '<!---->\n      <slot name="label"></slot>\n      <slot name="input"></slot>\n    <!---->' to equal '\n        <slot name="label"></slot>\n        <slot name="input"></slot>\n    '
@@ -131,16 +129,16 @@ AssertionError: expected '<!---->\n      <slot name="label"></slot>\n      <slot
   +
 ```
 
-What are those empty comment `<!---->` tags?
-=> They are sort of markers for `lit-html` so it can do its update work as efficiently as possible.
+You may have noticed those weird empty comment `<!---->` tags. They are markers that `lit-html` uses to remember where dynamic parts are, so it can be updated efficiently. For testing however, this can be a little annoying to deal with.
 
-Do we really need to match the exact same indentation in code and test?
-=> Jup if you use innerHTML and equals then it's "just" a string compare so it will need to be a perfect match.
+Do we really need to match the exact same indentation in code and test, and incorporate those markers?
+If you use innerHTML and compare the DOM then it's "just" a string compare so it will need to be a perfect match.
 
 **@open-wc/chai helper to the rescue**
 
-If we are using `@open-wc/testing` then it automatically loads a specific plugin for this for us.
-So let's use it :muscle:
+Fortunately, we got you covered. If you're using `@open-wc/testing` then it automatically loads a specific plugin for this for us to use.
+
+So let's try it out :muscle:
 
 ```js
 // old:
@@ -163,20 +161,18 @@ a11y input
 
 ### How does shadowDom.to.equal() work?
 
-It actually does a lot of work
 1. It gets the innerHTML of the shadowRoot
-2. Parses it (actually, we let the browser do it - no library needed)
+2. Parses it (actually, the browser parses it - no library needed)
 3. Normalizes it (potentially every tag/property on its own line)
 4. It does 2 + 3 for the expected html string
-5. Pass both normalizes dom string on to the default chai compare
-6. It will show/group differences in a nice way
+5. Pass both normalized dom strings on to the default chai compare
+6. Show and group differences in a clear manner
 
-If you wanna know more please check out [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
+If you want know more, please check out the documentation at: [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
 
-### Test the lightDom
+### Testing the lightDom
 
-We can do exactly the same thing with the light dom.
-E.g. the dom which will be provided by our user or we render as well.
+We can do exactly the same thing with the light dom. (The dom which will be provided by our user or our defaults).
 
 ```js
 it('has 1 input and 1 label in light-dom', async () => {
@@ -206,7 +202,7 @@ connectedCallback() {
 }
 ```
 
-*yes that is sort of an anti-pattern however to allow for a11y it might be a real use case - anyways it's great for illustration purposes*
+> Note: Yes, this is somewhat of an anti-pattern, however to allow for a11y it might be a real use case - anyways it's great for illustration purposes
 
 Now, this leads to a certain problem - can you guess it?
 
@@ -224,7 +220,7 @@ export class MyApp extends LitElement {}
 customElements.define('my-app', MyApp);
 ```
 
-tests `test/my-app.test.js`;
+And our test in `test/my-app.test.js`;
 ```js
 /* eslint-disable no-unused-expressions */
 import { html, fixture, expect } from '@open-wc/testing';
@@ -248,7 +244,7 @@ describe('My Filter App', () => {
 });
 ```
 
-and then we fill
+and then we render it like so:
 ```js
 render() {
   return html`
@@ -258,7 +254,7 @@ render() {
 }
 ```
 
-and oh no... that should be green...
+But oh no! That should be green...
 
 ```
 SUMMARY:
@@ -283,12 +279,11 @@ FAILED TESTS:
 ```
 
 So I'm only interested in `a11y-input` not in its implementation detail.
-As an app developer, I'm now a little unlucky as this element "plays" in my domain. preposterous!
+As an app developer, I'm now a little unlucky as this element "plays" in my domain. Preposterous!
 After some investigation I conclude there are very valid reasons for a11y input to do what it does.
-Now how can I test it?
+But how can I test it?
 
-Luckily `.shadowDom` has another ace up its sleeve.
-As it allows us to ignore certain dom parts.
+Luckily `.shadowDom` has another ace up its sleeve; it allows us to ignore parts of dom.
 
 ```js
 expect(el).shadowDom.to.equal(
@@ -300,7 +295,7 @@ expect(el).shadowDom.to.equal(
 );
 ```
 
-There is
+We can even specify the following properties as well:
 - ignoreChildren
 - ignoreTags
 - ignoreAttributes (globally or for specific tags)
@@ -322,7 +317,7 @@ Lines        : 100% ( 15/15 )
 ================================================================================
 ```
 
-which is already pretty neat.
+Which is already pretty neat.
 
 So let's go the other way and add code to `src/a11y-input.js` before adding a test. Let's say we want to access the value of our input directly via our custom element and whenever its value is 'cat' we want to log something.
 
@@ -379,7 +374,7 @@ FAILED TESTS:
     // ... => long error stack
 ```
 
-That seems to be too tough to just figure out in my head I need to see some actual nodes and expect them in the browser.
+That seems to be too harsh to just figure out in my head, I'll need to see some actual nodes and inspect them in the browser.
 
 ### Debugging in the browser
 
@@ -390,7 +385,7 @@ That seems to be too tough to just figure out in my head I need to see some actu
 You should see something like this
 ![02-debugging-in-browser](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/02-debugging-in-browser.png)
 
-And you can click on that circled play button to only run one individual test.
+You can click on the circled play button to only run one individual test.
 
 So let's open the Chrome Dev Tools (F12) and put a debugger in the code.
 
@@ -404,14 +399,14 @@ it('can set/get the input value directly via the custom element', async () => {
 });
 ```
 
-dang.. the error happens even before...
+Dang.. the error happens even before that point...
 
 ```js
 set value(newValue) {
   debugger;
 ```
 
-ok let's see what we have there
+Alright, let's see what we have here
 ```js
 // console.log(this);
 <a11y-input>
@@ -419,8 +414,8 @@ ok let's see what we have there
 </a11y-input>
 ```
 
-ahh so there we have it - the shadow dom is not yet rendered when the setter is called.
-Let's be safe
+Ahh there we have it - the shadow dom is not yet rendered when the setter is called.
+So let's be safe and add:
 
 ```js
 set value(newValue) {
@@ -433,13 +428,13 @@ set value(newValue) {
 }
 ```
 
-ok now the setter doesn't break anymore but we still have
+Now our setter doesn't break anymore but we still an AssertionError:
 ```
 ✖ can set/get the input value directly via the custom element
 AssertionError: expected '' to equal 'foo'
 ```
 
-Ok, we need a change of tactic :thinking:
+We may need a change of tactic :thinking: We can either:
 - add it as a separate property
 - sync it when needed
 
@@ -469,11 +464,11 @@ update(changedProperties) {
 }
 ```
 
-woow we are finally back in business :tada:
+And we're finally back in business! :tada:
 
 ### Back to coverage
 
-With this added test we made progress.
+With this added test we made some progress.
 
 ```
 =============================== Coverage summary ===============================
@@ -487,7 +482,7 @@ Lines        : 95.83% ( 23/24 )
 
 However we are still not fully there - the question is why?
 
-To find out open `coverage/index.html` in your browser => no web server needed just drag the file into your browser.
+To find out open `coverage/index.html` in your browser. (No web server needed just open the file in your browser.)
 
 You will see something like this
 
@@ -554,11 +549,10 @@ But wait we didn't even finish the test above it still has
 
 #### How come we have 100% test coverage?
 
-Lets first try to understand how code coverage work :thinking:
-The way code coverage gets measured is by applying a form of `instrumentation`.
-In short, before our code is executed it gets changed (`instrumented`) and it behaves something like this:
+Lets first try to understand how code coverage works :thinking:
+The way code coverage gets measured is by applying a form of `instrumentation`. In short, before our code is executed it gets changed (`instrumented`) and it behaves something like this:
 
-**Note:** This is a super simplified version to show the concept
+**Note:** This is a super simplified version for illustration purposes.
 ```js
 if (this.value === 'cat') {
   console.log('We like cats too :)');
@@ -574,12 +568,9 @@ if (this.value === 'cat') {
 }
 ```
 
-Basically, your code gets littered with many many flags.
-Based on which flags are set you can create a statistic.
+Basically, your code gets littered with many many flags. Based on which flags are set you can create a statistic.
 
-So 100% test coverage only means that every line you have in your code was executed at least once after all your tests finished.
-It does NOT mean that you tested everything or if you are expecting the correct things.
-You should see it as a tool that can give you guidance and help on spotting not executed lines of code in your tests.
+So 100% test coverage only means that every line you have in your code was executed at least once after all your tests finished. It does NOT mean that you tested everything or if you are expecting the correct things. You should see it as a tool that can give you guidance and help on spotting not executed lines of code in your tests.
 
 ### Spying on code
 
@@ -605,12 +596,12 @@ it('outputs "We like cats too :)" if the value is set to "cat"', async () => {
 });
 ```
 
-o oh... it fails
+Uh oh... the test fails:
 ```
 AssertionError: expected 0 to equal 1
 ```
 
-After some research, it basically comes down testing `console.log` is nasty and it should be better to refactor the code to a custom log function.
+After some research, we'll find out that testing a `console.log` is nasty and it would be better to refactor the code to a custom log function.
 
 Sure let's do that :)
 
@@ -644,13 +635,13 @@ it('logs "We like cats too :)" if the value is set to "cat"', async () => {
 });
 ```
 
-Still the same error => let's debug... boohoo apparently `update` is already patched and async.
+However, we still the same error. Let's debug... boohoo apparently `update` is already patched and async.
 
 There seems to be no public API to enable sync logging for properties.
 Let's create an issue for it https://github.com/Polymer/lit-element/issues/643.
 
 For now apparently, the only way is to rely on a *private* api. :see_no_evil:
-Also, we needed to move the value sync to `updated` so it gets executed after every dom render.
+Also, we need to move the value sync to `updated` so it gets executed after every dom render.
 
 ```js
 _requestUpdate(name, oldValue) {
@@ -701,7 +692,7 @@ TOTAL: 7 SUCCESS
 
 ### Run it bare bone
 
-The nice thing with everything we proposed so far is that is fully es module and does need no transpilation (except bare modules).
+The nice thing with everything we proposed so far is that we only used es modules and did no transpilation at all (except bare modules specifiers).
 So just by creating a `test/index.html`.
 
 ```html
@@ -730,14 +721,14 @@ So just by creating a `test/index.html`.
 </html>
 ```
 
-and opening it via `owc-dev-server` in chrome will work perfectly fine.
-e.g. the code works without `webpack` or `karma` - sweet :hugs:
+and opening it via `owc-dev-server` in chrome, it will work perfectly fine.
+We got everything up and running without `webpack` or `karma` - sweet :hugs:
 
 ### Do the cross-browser thing
 
-We now feel pretty comfortable with our web component just one more step - test it in all the browsers.
+We now feel pretty comfortable with our web component just one more step - we want to make sure and test it in all browsers.
 
-If you didn't setup Browserstack before do it now - here is the link again - [https://open-wc.org/testing/](https://open-wc.org/testing/).
+If you didn't setup Browserstack before, you can do it now - here is the link again - [https://open-wc.org/testing/](https://open-wc.org/testing/).
 
 So let's just run it
 ```
@@ -752,7 +743,7 @@ SUMMARY:
 TOTAL: 42 SUCCESS
 ```
 
-If there are failing tests it will only them in the summary with the specific browsers that had the problem.
+If there are failing tests it will output them in the summary with the specific browser where it failed.
 ```
 SUMMARY:
 ✔ 40 tests completed
@@ -777,8 +768,8 @@ FAILED TESTS:
 
 If you need to debug a particular browser:
 - `npm run test:legacy:watch`
-- visit [http://localhost:9876/debug.html](http://localhost:9876/debug.html) with that browser (be it locally or via browserstack)
-- select a specific test (or use it.only in code)
+- visit [http://localhost:9876/debug.html](http://localhost:9876/debug.html) with that browser (either it locally or via browserstack)
+- select a specific test (or use `it.only()` in code)
 - start debugging
 
 Also if you want to adjust the browser that gets tested you can adjust your `karma.bs.config.js`.
@@ -832,12 +823,12 @@ merge.strategy({
 **Note:** This uses the [webpack merge strategies](https://github.com/survivejs/webpack-merge#merging-with-strategies) replace.
 
 ## Quick recap
-- Be sure to write lots of tests if you want to
-- Try to keep your code coverage high (however, it does not need to be 100%)
+- Be sure to write lots of tests
+- Try to keep your code coverage high (however, it does not always need to be 100%)
 - Debug in the browser via `npm run test:watch` for legacy browser use `npm run test:legacy.watch`
 
 ## What's next?
-- Run the tests in your CI (works perfectly well together with browserstack)
+- Run the tests in your CI (works perfectly well together with browserstack). See our recommendations at [automating](https://open-wc.org/automating/).
 
-Follow me on [Twitter](https://twitter.com/daKmoR).
+Follow us on [Twitter](https://twitter.com/openwc), or follow me on my personal [Twitter](https://twitter.com/dakmor).
 If you have any interest in web component make sure to check out [open-wc.org](https://open-wc.org).
