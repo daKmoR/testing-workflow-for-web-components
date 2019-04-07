@@ -10,7 +10,7 @@ Unfortunately not always is this responsibility taken care of.
 One thing to make sure you take it on is to write tests.
 
 No matter how small - no matter how simple there should be tests.
-**Yes I know reality hit's hard and there will be many cases where that doesn't happen - but strife for it**
+*Yes I know reality hit's hard and there will be many cases where that doesn't happen - but strife for it*
 
 ### Disclaimer
 We are going to make a simple version of an accessible input.
@@ -22,7 +22,7 @@ We do it so we can see all the places where our testing workflow can shine.
 After following [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
 
 Let's create `src/a11y-input.js`;
-```
+```js
 import { LitElement, html, css } from 'lit-element';
 
 export class A11yInput extends LitElement {}
@@ -31,7 +31,7 @@ customElements.define('a11y-input', A11yInput);
 ```
 
 and `test/a11y-input.test.js`;
-```
+```js
 /* eslint-disable no-unused-expressions */
 import { html, fixture, expect } from '@open-wc/testing';
 
@@ -521,7 +521,7 @@ Let's see why?
 ![05-coverage-line-by-line-else](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/05-coverage-line-by-line-else.png)
 
 This `E` means `else path not taken`.
-So whenever the function `update` get's called there is always a property `value` in the changedProperties.
+So whenever the function `update` gets called there is always a property `value` in the changedProperties.
 
 We have `label` as well so it's a good idea to test it. :+1:
 
@@ -553,8 +553,8 @@ But wait we didn't even finish the test above it still has
 #### How come we have 100% test coverage?
 
 Lets first try to understand how code coverage work :thinking:
-The way code coverage gets messured is by applying a form of `instrumentation`.
-In short before our code is executed it gets changed (`instrumented`) and it behaves something like this:
+The way code coverage gets measured is by applying a form of `instrumentation`.
+In short, before our code is executed it gets changed (`instrumented`) and it behaves something like this:
 
 **Note:** This is a super simplified version to show the concept
 ```js
@@ -582,4 +582,111 @@ You should see it as a tool that can give you guidance and help on spotting not 
 ### Spys
 
 
+### Do the cross-browser thing
 
+We now feel pretty comfortable with our web component just one more step - test it in all the browsers.
+
+If you didn't setup Browserstack before do it now - here is the link again - [https://open-wc.org/testing/](https://open-wc.org/testing/).
+
+So let's just run it
+```
+npm run test:bs
+```
+
+uh yeah that works nicely :hugging_face:
+
+```
+SUMMARY:
+✔ 42 tests completed
+TOTAL: 42 SUCCESS
+```
+
+If there are failing tests it will only them in the summary with the specific browsers that had the problem.
+```
+SUMMARY:
+✔ 40 tests completed
+✖ 2 tests failed
+
+FAILED TESTS:
+  a11y input
+    ✖ has a static shadowDom
+      Firefox 64.0.0 (Windows 10.0.0)
+      Safari 12.0.0 (Mac OS X 10.14.0)
+    expected '<slot name="label">\n</slot>\n<slot name="input">\n</slot>\n<style>\n</style>\n' to equal '<slot name="label">\n</slot>\n<slot name="input">\n</slot>\n'
+
+      + expected - actual
+
+       <slot name="label">
+       </slot>
+       <slot name="input">
+       </slot>
+      -<style>
+      -</style>
+```
+
+If you need to debug a particular browser:
+- `npm run test:legacy:watch`
+- visit [http://localhost:9876/debug.html](http://localhost:9876/debug.html) with that browser (be it locally or via browserstack)
+- select a specific test (or use it.only in code)
+- start debugging
+
+Also if you want to adjust the browser that gets tested you can adjust your `karma.bs.config.js`.
+
+For example, if you want to add the `Firefox ESR` to your list.
+
+```js
+module.exports = config => {
+  config.set(
+    merge(bsSettings(config), createBaseConfig(config), {
+      browserStack: {
+        project: 'testing-workflow-for-web-components',
+      },
+      browsers: [
+        'bs_win10_firefox_ESR',
+      ],
+      // define browsers
+      // https://www.browserstack.com/automate/capabilities
+      customLaunchers: {
+        bs_win10_firefox_ESR: {
+          base: 'BrowserStack',
+          browser: 'Firefox',
+          browser_version: '60',
+          os: 'Windows',
+          os_version: '10',
+        },
+      },
+    }),
+  );
+
+  return config;
+};
+```
+
+Or maybe you want to test only 2 specific browsers?
+
+```js
+merge.strategy({
+  browsers: 'replace',
+})(bsSettings(config), createBaseConfig(config), {
+  browserStack: {
+    project: 'testing-workflow-for-web-components',
+  },
+  browsers: [
+    'bs_win10_ie_11',
+    'bs_win10_firefox_ESR',
+  ],
+}),
+```
+
+**Note:** This uses the [webpack merge strategies](https://github.com/survivejs/webpack-merge#merging-with-strategies) replace.
+
+## Quick recap
+- Be sure to write lots of tests if you want to
+- Try to keep your code coverage high (however it does not need to be 100%)
+- Do debugging in the browser via `npm run test:watch`
+
+## What's next?
+- Run the tests in your CI (works perfectly well together with browserstack)
+
+Follow me on [Twitter](https://twitter.com/daKmoR).
+If you have any interest in web component make sure to check out [open-wc.org](https://open-wc.org).
