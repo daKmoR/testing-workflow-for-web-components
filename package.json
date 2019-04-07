@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": "https://github.com/open-wc/open-wc/",
   "scripts": {
-    "start": "owc-dev-server --open demo",
+    "start": "owc-dev-server --open test",
     "lint:eslint": "eslint --ext .js,.html .",
     "format:eslint": "eslint --ext .js,.html . --fix",
     "lint:prettier": "prettier \"**/*.js\" --list-different || (echo '↑↑ these files are not prettier formatted ↑↑' && exit 1)",
@@ -24,7 +24,8 @@
   "dependencies": {
     "@types/node": "^11.13.0",
     "lit-element": "^2.0.1",
-    "lit-html": "^1.0.0"
+    "lit-html": "^1.0.0",
+    "sinon": "^7.3.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",

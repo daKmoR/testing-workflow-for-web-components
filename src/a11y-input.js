@@ -31,14 +31,35 @@ export class A11yInput extends LitElement {
     this.appendChild(this.inputEl);
   }
 
-  update(changedProperties) {
-    super.update(changedProperties);
-    if (changedProperties.has('value')) {
+  _requestUpdate(name, oldValue) {
+    // @ts-ignore
+    super._requestUpdate(name, oldValue);
+    if (name === 'value') {
       if (this.value === 'cat') {
-        console.log('We like cats too :)');
+        this.log('We like cats too :)');
       }
+    }
+  }
+
+  /**
+   * Hooks into update to sync and log
+   *
+   * @param {import('lit-element').PropertyValues} changedProperties
+   */
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (changedProperties.has('value')) {
       this.inputEl.value = this.value;
     }
+  }
+
+  /**
+   * Logs a specifc message to browser console or terminal on node
+   *
+   * @param {string} msg The string to log
+   */
+  log(msg) {
+    console.log(msg);
   }
 
   render() {

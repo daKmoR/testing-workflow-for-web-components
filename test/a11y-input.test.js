@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import { html, fixture, expect } from '@open-wc/testing';
+import sinon from 'sinon';
 
 import '../src/a11y-input.js';
 
@@ -48,10 +49,39 @@ describe('a11y input', () => {
     expect(el.querySelector('input').value).to.equal('foo');
   });
 
-  it('outputs "We like cats too :)" if the value is "cat"', async () => {
+  // it('outputs "We like cats too :)" if the value is set to "cat"', async () => {
+  //   const logSpy = sinon.spy(console, 'log');
+  //   const el = /** @type {A11yInput} */ (await fixture(html`
+  //     <a11y-input></a11y-input>
+  //   `));
+
+  //   el.value = 'cat';
+  //   expect(logSpy.callCount).to.equal(1);
+  //   expect(logSpy.calledWith('We like cats too :)')).to.be.true;
+
+  //   // different values do NOT log
+  //   el.value = 'foo';
+  //   expect(logSpy.callCount).to.equal(1);
+
+  //   el.value = 'cat';
+  //   expect(logSpy.callCount).to.equal(2);
+  // });
+
+  it('logs "We like cats too :)" if the value is set to "cat"', async () => {
     const el = /** @type {A11yInput} */ (await fixture(html`
-      <a11y-input .value=${'cat'}></a11y-input>
+      <a11y-input></a11y-input>
     `));
-    // somehow check that console.log was called
+    const logSpy = sinon.spy(el, 'log');
+
+    el.value = 'cat';
+    expect(logSpy.callCount).to.equal(1);
+    expect(logSpy.calledWith('We like cats too :)')).to.be.true;
+
+    // different values do NOT log
+    el.value = 'foo';
+    expect(logSpy.callCount).to.equal(1);
+
+    el.value = 'cat';
+    expect(logSpy.callCount).to.equal(2);
   });
 });

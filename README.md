@@ -17,6 +17,8 @@ We are going to make a simple version of an accessible input.
 Everything you see here is for illustration purposes only - so don't scream at me that you should not do it.
 We do it so we can see all the places where our testing workflow can shine.
 
+If you wanna play along - all the code is on [github](https://github.com/daKmoR/testing-workflow-for-web-components).
+
 ## Let's get started
 
 After following [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
@@ -579,8 +581,157 @@ So 100% test coverage only means that every line you have in your code was execu
 It does NOT mean that you tested everything or if you are expecting the correct things.
 You should see it as a tool that can give you guidance and help on spotting not executed lines of code in your tests.
 
-### Spys
+### Spying on code
 
+If you want to check how often a function gets called or with which parameters then it's called spying.
+I would recommend [sinon](https://sinonjs.org/) for it.
+
+```bash
+npm i -D sinon
+```
+
+Let's write a test using it
+```js
+import sinon from 'sinon';
+
+it('outputs "We like cats too :)" if the value is set to "cat"', async () => {
+  const logSpy = sinon.spy(console, 'log');
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input></a11y-input>
+  `));
+
+  el.value = 'cat';
+  expect(logSpy.callCount).to.equal(1);
+});
+```
+
+o oh... it fails
+```
+AssertionError: expected 0 to equal 1
+```
+
+After some research, it basically comes down testing `console.log` is nasty and it should be better to refactor the code to a custom log function.
+
+Sure let's do that :)
+
+```js
+update(changedProperties) {
+  super.update(changedProperties);
+  if (changedProperties.has('value')) {
+    if (this.value === 'cat') {
+      this.log('We like cats too :)');
+    }
+    this.inputEl.value = this.value;
+  }
+}
+
+log(msg) {
+  console.log(msg);
+}
+```
+
+Now we also no longer need to check for a global object - sweet :hugs:
+
+```js
+it('logs "We like cats too :)" if the value is set to "cat"', async () => {
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input></a11y-input>
+  `));
+  const logSpy = sinon.spy(el, 'log');
+
+  el.value = 'cat';
+  expect(logSpy.callCount).to.equal(1);
+});
+```
+
+Still the same error => let's debug... boohoo apparently `update` is already patched and async.
+
+There seems to be no public API to enable sync logging for properties.
+Let's create an issue for it https://github.com/Polymer/lit-element/issues/643.
+
+For now apparently, the only way is to rely on a *private* api. :see_no_evil:
+Also, we needed to move the value sync to `updated` so it gets executed after every dom render.
+
+```js
+_requestUpdate(name, oldValue) {
+  super._requestUpdate(name, oldValue);
+  if (name === 'value') {
+    if (this.value === 'cat') {
+      this.log('We like cats too :)');
+    }
+  }
+}
+
+updated(changedProperties) {
+  super.updated(changedProperties);
+  if (changedProperties.has('value')) {
+    this.inputEl.value = this.value;
+  }
+}
+```
+
+and here is the updated test for the logging
+```js
+it('logs "We like cats too :)" if the value is set to "cat"', async () => {
+  const el = /** @type {A11yInput} */ (await fixture(html`
+    <a11y-input></a11y-input>
+  `));
+  const logSpy = sinon.spy(el, 'log');
+
+  el.value = 'cat';
+  expect(logSpy.callCount).to.equal(1);
+  expect(logSpy.calledWith('We like cats too :)')).to.be.true;
+
+  // different values do NOT log
+  el.value = 'foo';
+  expect(logSpy.callCount).to.equal(1);
+
+  el.value = 'cat';
+  expect(logSpy.callCount).to.equal(2);
+});
+```
+
+wow, that was a little tougher than expected but we did it :muscle:
+
+```
+SUMMARY:
+✔ 7 tests completed
+TOTAL: 7 SUCCESS
+```
+
+### Run it bare bone
+
+The nice thing with everything we proposed so far is that is fully es module and does need no transpilation (except bare modules).
+So just by creating a `test/index.html`.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../node_modules/mocha/mocha.css" rel="stylesheet" />
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+</head>
+<body>
+  <div id="mocha"></div>
+  <script>
+    mocha.setup('bdd');
+  </script>
+
+  <script type="module">
+    import './a11y-input.test.js';
+    import './my-app.test.js';
+
+    mocha.checkLeaks();
+    mocha.run();
+  </script>
+</body>
+</html>
+```
+
+and opening it via `owc-dev-server` in chrome will work perfectly fine.
+e.g. the code works without `webpack` or `karma` - sweet :hugs:
 
 ### Do the cross-browser thing
 
@@ -593,7 +744,7 @@ So let's just run it
 npm run test:bs
 ```
 
-uh yeah that works nicely :hugging_face:
+uh yeah that works nicely :hugs:
 
 ```
 SUMMARY:
@@ -682,8 +833,8 @@ merge.strategy({
 
 ## Quick recap
 - Be sure to write lots of tests if you want to
-- Try to keep your code coverage high (however it does not need to be 100%)
-- Do debugging in the browser via `npm run test:watch`
+- Try to keep your code coverage high (however, it does not need to be 100%)
+- Debug in the browser via `npm run test:watch` for legacy browser use `npm run test:legacy.watch`
 
 ## What's next?
 - Run the tests in your CI (works perfectly well together with browserstack)
