@@ -25,10 +25,7 @@ describe('a11y input', () => {
     const el = /** @type {A11yInput} */ (await fixture(html`
       <a11y-input></a11y-input>
     `));
-    expect(el).shadowDom.to.equal(`
-      <slot name="label"></slot>
-      <slot name="input"></slot>
-    `);
+    expect(el).shadowDom.to.equalSnapshot();
   });
 
   it('has 1 input and 1 label in light-dom', async () => {

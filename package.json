@@ -19,7 +19,9 @@
     "test:legacy": "karma start --legacy --coverage",
     "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
     "test:bs": "karma start karma.bs.config.js --legacy --coverage",
-    "lint:types": "tsc"
+    "lint:types": "tsc",
+    "test:update-snapshots": "karma start --update-snapshots",
+    "test:prune-snapshots": "karma start --prune-snapshots"
   },
   "dependencies": {
     "@types/node": "^11.13.0",
@@ -32,7 +34,7 @@
     "@commitlint/config-conventional": "^7.0.0",
     "@open-wc/eslint-config": "^0.4.1",
     "@open-wc/prettier-config": "^0.1.0",
-    "@open-wc/testing": "^0.10.10",
+    "@open-wc/testing": "^0.11.1",
     "@open-wc/testing-karma": "^1.0.0",
     "@open-wc/testing-karma-bs": "^1.0.0",
     "husky": "^1.0.0",

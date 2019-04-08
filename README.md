@@ -14,13 +14,38 @@ No matter how small - no matter how simple your project, there should always be 
 ### Disclaimer
 In this tutorial, we're going to make a simple version of an accessible input. The aim of this tutorial is to give you a solid understanding of how to put our testing tools to practice, and get a solid and well-tested project.
 
+### Warning
+This is an in depth tutorial showing a few pitfalls and tough cases when working with web components. This is definitely for more advanced users. You should have a basic knowledge about [LitElement](https://lit-element.polymer-project.org/) and [JSDoc Types](https://dev.to/dakmor/type-safe-web-components-with-jsdoc-4icf). Having an idea what [Mocha](https://mochajs.org/), [Chai BDD](https://www.chaijs.com/api/bdd/), [Karma](https://karma-runner.github.io/latest/index.html) is might help a little as well.
+
+> We are thinking about posting an easier digistable version of this so if you thats something you would like to see - let us know in the comments.
+
 If you want to play along - all the code is on [github](https://github.com/daKmoR/testing-workflow-for-web-components).
 
 ## Let's get started!
 
-Start by following the instructions at [https://open-wc.org/testing/](https://open-wc.org/testing/) you should have the basic setup up and running.
+Run in your console
 
-Let's create `src/a11y-input.js`;
+```bash
+$ npm init @open-wc
+
+# Results in this flow
+What would you like to do today?
+  > Scaffold a new project
+What would you like to scaffold?
+Note: Content will be written in a new folder.
+  > Lit Element Web Component
+Give it a tag name (min two words separated by dashes) a11y-input
+
+# then go into the folder and add testing
+cd a11y-input
+npm init @open-wc testing
+```
+
+For more details please see [https://open-wc.org/testing/](https://open-wc.org/testing/).
+
+Delete `src/A11yInput.js`
+
+Modify `src/a11y-input.js` to:
 ```js
 import { LitElement, html, css } from 'lit-element';
 
@@ -29,7 +54,7 @@ export class A11yInput extends LitElement {}
 customElements.define('a11y-input', A11yInput);
 ```
 
-and `test/a11y-input.test.js`;
+and `test/a11y-input.test.js` to:
 ```js
 /* eslint-disable no-unused-expressions */
 import { html, fixture, expect } from '@open-wc/testing';
@@ -73,9 +98,26 @@ Let's switch into watch mode `npm run test:watch`, this will run the tests simul
 
 ![01-watch-mode-intro](https://github.com/daKmoR/testing-workflow-for-web-components/raw/master/images/01-watch-mode-intro.gif)
 
+The following code was added in the video above to `src/a11y-input.js`:
+```js
+static get properties() {
+  return {
+    label: { type: String },
+  };
+}
+
+constructor() {
+  super();
+  this.label = '';
+}
+```
+
 So far so good? Still with us? Great! Let's up the game a little.
 
 ### Adding a test for shadow dom
+
+If we want to be sure that our element behaves/looks the same we should make sure its dom structure remains the same.
+So let's compare the actual shadow dom to what we want it to be.
 
 ```js
 it('has a static shadowDom', async () => {
@@ -129,14 +171,14 @@ AssertionError: expected '<!---->\n      <slot name="label"></slot>\n      <slot
   +
 ```
 
-You may have noticed those weird empty comment `<!---->` tags. They are markers that `lit-html` uses to remember where dynamic parts are, so it can be updated efficiently. For testing however, this can be a little annoying to deal with.
+You may have noticed those weird empty comment `<!---->` tags. They are markers that `lit-html` uses to remember where dynamic parts are, so it can be updated efficiently. For testing, however, this can be a little annoying to deal with.
 
 Do we really need to match the exact same indentation in code and test, and incorporate those markers?
-If you use innerHTML and compare the DOM then it's "just" a string compare so it will need to be a perfect match.
+If you use innerHTML and compare the DOM then it's "just" a string compar so it will need to be a perfect match.
 
-**@open-wc/chai helper to the rescue**
+*@open-wc/semantic-dom-diff to the rescue*
 
-Fortunately, we got you covered. If you're using `@open-wc/testing` then it automatically loads a specific plugin for this for us to use.
+Fortunately, we got you covered. If you're using `@open-wc/testing` then it automatically loads a specific chai plugin for you to be used.
 
 So let's try it out :muscle:
 
@@ -164,11 +206,11 @@ a11y input
 1. It gets the innerHTML of the shadowRoot
 2. Parses it (actually, the browser parses it - no library needed)
 3. Normalizes it (potentially every tag/property on its own line)
-4. It does 2 + 3 for the expected html string
+4. It does point 2 + 3 for the expected html string
 5. Pass both normalized dom strings on to the default chai compare
 6. Show and group differences in a clear manner
 
-If you want know more, please check out the documentation at: [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
+If you want to know more, please check out the documentation of [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
 
 ### Testing the lightDom
 
@@ -202,13 +244,13 @@ connectedCallback() {
 }
 ```
 
-> Note: Yes, this is somewhat of an anti-pattern, however to allow for a11y it might be a real use case - anyways it's great for illustration purposes
+So we tested our light and shadow dom :muscle: and our tests run clean :tada:
 
-Now, this leads to a certain problem - can you guess it?
+> Note: Yes, modifying your own light dom is somewhat of an anti-pattern, however for a11y reasons, this is more of a real use case then you might think :p - anyways it's great for illustration purposes
 
 ### My Filter App
 
-So now that we have a basic a11y input let's use it in our application.
+Next up is our main application which of course will us our fresh out of the oven a11y-input.
 
 Again we start with a skeleton `src/my-app.js`
 ```js
@@ -244,7 +286,8 @@ describe('My Filter App', () => {
 });
 ```
 
-and then we render it like so:
+Run the test => fails and then we add the implementation to `src/a11y-input.js`
+
 ```js
 render() {
   return html`
@@ -254,7 +297,7 @@ render() {
 }
 ```
 
-But oh no! That should be green...
+But oh no! That should be green now...
 
 ```
 SUMMARY:
@@ -278,10 +321,17 @@ FAILED TESTS:
        </a11y-input>
 ```
 
-So I'm only interested in `a11y-input` not in its implementation detail.
-As an app developer, I'm now a little unlucky as this element "plays" in my domain. Preposterous!
-After some investigation I conclude there are very valid reasons for a11y input to do what it does.
-But how can I test it?
+What is happening?
+You remember that we tested how light-dom of a11y-input?
+So even if the users only places `<a11y-input></a11y-input>` what actually comes out is
+```html
+<a11y-input>
+  <label slot="label"></label>
+  <input slot="input">
+</a11y-input>
+```
+e.g. `a11y-input` is actually creating nodes inside of your `my-app` shadow dom. Preposterous!
+For our example here we say that's what we want - So how can we still test it?
 
 Luckily `.shadowDom` has another ace up its sleeve; it allows us to ignore parts of dom.
 
@@ -301,6 +351,63 @@ We can even specify the following properties as well:
 - ignoreAttributes (globally or for specific tags)
 
 For more details please see [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
+
+#### Snapshot testing
+
+If you have a lot of big dom trees writing/maintaining all those manually written expects is going to be tough.
+To help you with that there are semi/automatic snapshots.
+
+So if we change our code
+```js
+// from
+expect(el).shadowDom.to.equal(`
+  <slot name="label"></slot>
+  <slot name="input"></slot>
+`);
+
+// to
+expect(el).shadowDom.to.equalSnapshot();
+```
+
+So if we now execute `npm run test` it will create a file `__snapshots__/a11y input.md` and fill it with something like this
+```
+# `a11y input`
+
+#### `has a static shadowDom`
+
+``html
+<slot name="label">
+</slot>
+<slot name="input">
+</slot>
+
+``
+```
+
+So what we wrote before by hand can now be auto-generated on init or forcefully via `npm run test:update-snapshots`.
+
+If the file `__snapshots__/a11y input.md` already exists it will compare it with the output and you will get errors if your html output changed.
+
+```
+FAILED TESTS:
+  a11y input
+    ✖ has a static shadowDom
+      HeadlessChrome 73.0.3683 (Windows 10.0.0)
+    AssertionError: Received value does not match stored snapshot 0
+
+      + expected - actual
+
+      -<slot name="label-wrong">
+      +<slot name="label">
+       </slot>
+       <slot name="input">
+      -</slot>
+      +</slot>
+```
+
+For more details please see [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
+
+I think that's now enough about comparing dom trees - it's time for a change :)
 
 ### Code coverage
 
@@ -355,7 +462,7 @@ Lines        : 81.82% ( 18/22 )
 So first of our coverage is way lower than before and our command even fails although all tests run successfully.
 Apparently, there is a 90% limit on what your code coverage should be.
 
-So let's add a test
+If we want to improve coverge we need to add tests - so let's do it
 ```js
 it('can set/get the input value directly via the custom element', async () => {
   const el = /** @type {A11yInput} */ (await fixture(html`
@@ -365,7 +472,7 @@ it('can set/get the input value directly via the custom element', async () => {
 });
 ```
 
-uh oh :scream:
+uh oh :scream: we wanted to improve coverage but now we need fix an actual bug first :disappointed:
 ```
 FAILED TESTS:
   a11y input
@@ -374,7 +481,7 @@ FAILED TESTS:
     // ... => long error stack
 ```
 
-That seems to be too harsh to just figure out in my head, I'll need to see some actual nodes and inspect them in the browser.
+Ok on first glance I don't really know what that means... better to checkn some actual nodes and inspect them in the browser.
 
 ### Debugging in the browser
 
@@ -387,7 +494,7 @@ You should see something like this
 
 You can click on the circled play button to only run one individual test.
 
-So let's open the Chrome Dev Tools (F12) and put a debugger in the code.
+So let's open the Chrome Dev Tools (F12) and put a debugger in the test code.
 
 ```js
 it('can set/get the input value directly via the custom element', async () => {
@@ -400,22 +507,24 @@ it('can set/get the input value directly via the custom element', async () => {
 ```
 
 Dang.. the error happens even before that point...
+"Fatal" errors like this are a little tougher as they are not failing tests but sort of a complete meltdown of your full component.
+
+Ok let's put some code in the `setter` directly.
 
 ```js
 set value(newValue) {
   debugger;
 ```
 
-Alright, let's see what we have here
+Alright, that worked so our chrome console we write `console.log(this)` let's see what we have here
 ```js
-// console.log(this);
 <a11y-input>
   #shadow-root (open)
 </a11y-input>
 ```
 
 Ahh there we have it - the shadow dom is not yet rendered when the setter is called.
-So let's be safe and add:
+So let's be safe and add a check before
 
 ```js
 set value(newValue) {
@@ -428,15 +537,16 @@ set value(newValue) {
 }
 ```
 
-Now our setter doesn't break anymore but we still an AssertionError:
+Fatel error is gone :tada:
+But we now have an failing test :sob:
+
 ```
 ✖ can set/get the input value directly via the custom element
 AssertionError: expected '' to equal 'foo'
 ```
 
-We may need a change of tactic :thinking: We can either:
-- add it as a separate property
-- sync it when needed
+We may need a change of tactic :thinking:
+We can add it as a separate `value` property and sync when needed.
 
 ```js
 static get properties() {
@@ -465,6 +575,8 @@ update(changedProperties) {
 ```
 
 And we're finally back in business! :tada:
+
+ok bug fixed - can we please get back to coverage? thank you :p
 
 ### Back to coverage
 
@@ -531,7 +643,7 @@ it('can update its label', async () => {
 });
 ```
 
-boom :muscle:
+boom 100% :muscle: we win :1st_place_medal:
 
 ```
 =============================== Coverage summary ===============================
@@ -542,7 +654,7 @@ Lines        : 100% ( 24/24 )
 ================================================================================
 ```
 
-But wait we didn't even finish the test above it still has
+But wait we didn't even finish the test above - the code is still
 ```js
   // somehow check that console.log was called
 ```
@@ -568,20 +680,23 @@ if (this.value === 'cat') {
 }
 ```
 
-Basically, your code gets littered with many many flags. Based on which flags are set you can create a statistic.
+Basically, your code gets littered with many many flags. Based on which flags get trigger a statistic gets created.
 
 So 100% test coverage only means that every line you have in your code was executed at least once after all your tests finished. It does NOT mean that you tested everything or if you are expecting the correct things. You should see it as a tool that can give you guidance and help on spotting not executed lines of code in your tests.
 
+So even though we already have 100% code coverge we are still going to improve our log test.
+
 ### Spying on code
 
-If you want to check how often a function gets called or with which parameters then it's called spying.
-I would recommend [sinon](https://sinonjs.org/) for it.
+If you want to check how often a function gets called or with which parameters - that is called spying.
+We recommend [sinon](https://sinonjs.org/) for it.
 
 ```bash
 npm i -D sinon
 ```
 
-Let's write a test using it
+So you create a spy on a specfic object and then you can check how often it get's called.
+
 ```js
 import sinon from 'sinon';
 
@@ -601,7 +716,7 @@ Uh oh... the test fails:
 AssertionError: expected 0 to equal 1
 ```
 
-After some research, we'll find out that testing a `console.log` is nasty and it would be better to refactor the code to a custom log function.
+After some research, we found out that testing a `console.log` is nasty and it would be better to refactor the code to a custom log function.
 
 Sure let's do that :)
 
@@ -635,13 +750,13 @@ it('logs "We like cats too :)" if the value is set to "cat"', async () => {
 });
 ```
 
-However, we still the same error. Let's debug... boohoo apparently `update` is already patched and async.
+However, we still get the same error. Let's debug... boohoo apparently `update` is not sync - a wrong assumption I made :see_no_evil: Have I said this before? anyways *assumptions are dangerous*...
 
-There seems to be no public API to enable sync logging for properties.
+Sadly there seems to be no public api to do some sync triggered by an property update.
 Let's create an issue for it https://github.com/Polymer/lit-element/issues/643.
 
 For now apparently, the only way is to rely on a *private* api. :see_no_evil:
-Also, we need to move the value sync to `updated` so it gets executed after every dom render.
+Also, we needed to move the value sync to `updated` so it gets executed after every dom render.
 
 ```js
 _requestUpdate(name, oldValue) {
@@ -692,7 +807,7 @@ TOTAL: 7 SUCCESS
 
 ### Run it bare bone
 
-The nice thing with everything we proposed so far is that we only used es modules and did no transpilation at all (except bare modules specifiers).
+The nice thing with everything we used/proposed so far is that we only used es modules and did no transpilation at all (except bare modules specifiers).
 So just by creating a `test/index.html`.
 
 ```html
