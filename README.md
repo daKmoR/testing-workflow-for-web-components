@@ -159,7 +159,7 @@ render() {
 }
 ```
 
-Interesting, the test should be green... but it's not :/ Let's take a look.
+Interesting, the test should be green... but it's not :thinking: Let's take a look.
 ```
 ✖ has a static shadowDom
 AssertionError: expected '<!---->\n      <slot name="label"></slot>\n      <slot name="input"></slot>\n    <!---->' to equal '\n        <slot name="label"></slot>\n        <slot name="input"></slot>\n    '
@@ -180,9 +180,7 @@ You may have noticed those weird empty comment `<!---->` tags. They are markers 
 
 If we use `innerHTML` to compare the DOM, we'd have to rely on simple string equality. Under those circumstances, we'd have to exactly match the generated DOM's whitespace, comments, etc; in other words: it will need to be a perfect match. Really all we need to test is that the elements we want to render are rendered. We want to test the *semantic* contents of the shadow root.
 
-*@open-wc/semantic-dom-diff to the rescue*
-
-Fortunately, we've got you covered. If you're using `@open-wc/testing` then it automatically loads the `semantic-dom-diff` plugin for us to use.
+Fortunately, we've got you covered. If you're using `@open-wc/testing` then it automatically loads the `@open-wc/semantic-dom-diff` chai plugin for us to use.
 
 So let's try it out :muscle:
 
@@ -326,27 +324,24 @@ FAILED TESTS:
 ```
 
 What is happening?
-You remember that we tested how light-dom of a11y-input?
-So even if the users only places `<a11y-input></a11y-input>` what actually comes out is
+Do you remember that we had a specifc test to ensure the light-dom of a11y-input?
+So even if the users only puts `<a11y-input></a11y-input>` in his code - what actually comes out is
 ```html
 <a11y-input>
   <label slot="label"></label>
   <input slot="input">
 </a11y-input>
 ```
-e.g. `a11y-input` is actually creating nodes inside of your `my-app` shadow dom. Preposterous!
-For our example here we say that's what we want - So how can we still test it?
+e.g. `a11y-input` is actually creating nodes inside of your `my-app` shadow dom. Preposterous! For our example here we say that's what we want.
+So how can we still test it?
 
 Luckily `.shadowDom` has another ace up its sleeve; it allows us to ignore parts of dom.
 
 ```js
-expect(el).shadowDom.to.equal(
-  `
+expect(el).shadowDom.to.equal(`
   <h1>My Filter App</h1>
   <a11y-input></a11y-input>
-`,
-  { ignoreChildren: ['a11y-input'] },
-);
+`, { ignoreChildren: ['a11y-input'] });
 ```
 
 We can even specify the following properties as well:
@@ -373,7 +368,7 @@ expect(el).shadowDom.to.equal(`
 expect(el).shadowDom.to.equalSnapshot();
 ```
 
-So if we now execute `npm run test` it will create a file `__snapshots__/a11y input.md` and fill it with something like this
+If we now execute `npm run test` it will create a file `__snapshots__/a11y input.md` and fill it with something like this
 ```
 # `a11y input`
 
@@ -388,7 +383,7 @@ So if we now execute `npm run test` it will create a file `__snapshots__/a11y in
 ``
 ```
 
-So what we wrote before by hand can now be auto-generated on init or forcefully via `npm run test:update-snapshots`.
+What we wrote before by hand can now be auto-generated on init or forcefully via `npm run test:update-snapshots`.
 
 If the file `__snapshots__/a11y input.md` already exists it will compare it with the output and you will get errors if your html output changed.
 
@@ -411,7 +406,8 @@ FAILED TESTS:
 
 For more details please see [semantic-dom-diff](https://open-wc.org/testing/semantic-dom-diff.html).
 
-I think that's now enough about comparing dom trees - it's time for a change :)
+I think that's now enough about comparing dom trees...
+It's time for a change :hugs:
 
 ### Code coverage
 
@@ -582,7 +578,7 @@ update(changedProperties) {
 
 And we're finally back in business! :tada:
 
-ok bug fixed - can we please get back to coverage? thank you :p
+ok bug fixed - can we please get back to coverage? thank you :pray:
 
 ### Back to coverage
 
@@ -613,7 +609,7 @@ So we can immediately see which lines are not executed yet by our tests.
 
 So let's add a test for that
 ```js
-it('outputs "We like cats too :)" if the value is "cat"', async () => {
+it('logs "We like cats too :)" if the value is "cat"', async () => {
   const el = /** @type {A11yInput} */ (await fixture(html`
     <a11y-input .value=${'cat'}></a11y-input>
   `));
@@ -724,9 +720,7 @@ Uh oh... the test fails:
 AssertionError: expected 0 to equal 1
 ```
 
-After some research, we found out that testing a `console.log` is nasty and it would be better to refactor the code to a custom log function.
-
-Sure let's do that :)
+Messing with global objects like `console` might have [side effects](https://gyandeeps.com/console-stubbing/) so let's better refactor using a dedicated log function.
 
 ```js
 update(changedProperties) {
@@ -744,7 +738,7 @@ log(msg) {
 }
 ```
 
-Now we also no longer need to check for a global object - sweet :hugs:
+This result in no global object in our test code - sweet :hugs:
 
 ```js
 it('logs "We like cats too :)" if the value is set to "cat"', async () => {
