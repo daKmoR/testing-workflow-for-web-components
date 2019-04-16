@@ -29,16 +29,15 @@ Run in your console
 $ npm init @open-wc
 
 # Results in this flow
-What would you like to do today?
-  > Scaffold a new project
-What would you like to scaffold?
-Note: Content will be written in a new folder.
-  > Lit Element Web Component
-Give it a tag name (min two words separated by dashes) a11y-input
-
-# then go into the folder and add testing
-cd a11y-input
-npm init @open-wc testing
+✔ What would you like to do today? › Scaffold a new project
+✔ What would you like to scaffold? › Web Component
+# Select with space! "Testing" => just enter will move one with no selection
+✔ What would you like to add? › Testing
+✔ Would you like to scaffold examples files for? › Testing
+✔ What is the tag name of your application/web component? … a11y-input
+✔ Do you want to write this file structure to disk? › Yes
+Writing..... done
+✔ Do you want to install dependencies? › No
 ```
 
 For more details please see [https://open-wc.org/testing/](https://open-wc.org/testing/).
