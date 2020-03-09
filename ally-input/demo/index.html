@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <div id="demo"></div>
+
+  <script type="module">
+    import { html, render } from 'lit-html';
+    import '../ally-input.js';
+
+    const title = 'Hello owc World!';
+    render(
+      html`
+        <ally-input .title=${title}>
+          some more light-dom
+        </ally-input>
+      `,
+      document.querySelector('#demo')
+    );
+  </script>
+</body>
+</html>
